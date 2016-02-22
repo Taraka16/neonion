@@ -195,3 +195,6 @@ ENDPOINT_UPDATE = 'http://localhost:8080/openrdf-sesame/repositories/neonion/sta
 # settings for NER service
 NER_SERVICE_ENABLED = False
 NER_SERVICE_URL = 'http://localhost:6000'
+
+#LOGGING_CONFIG = None
+

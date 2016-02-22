@@ -61,6 +61,11 @@
                     <i class="fa fa-users fa-fw"></i>Users
                 </a>
             </li>
+	    
+	    {# Kibana #}
+            <li><a href="http://127.0.0.1:5601/" target="_blank"><i class="fa fa-bar-chart"></i>kibana </a>	
+	    </li>
+
         {% endif %}
         {# Logout #}
         <li {% if request.path == url_logout %}class="active"{% endif %}>

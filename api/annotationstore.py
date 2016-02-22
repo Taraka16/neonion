@@ -14,6 +14,7 @@ from common.exceptions import InvalidResourceTypeError, InvalidAnnotationError
 from django.http import JsonResponse
 from api.decorators import require_group_permission
 from documents.models import Document
+from logging.annotatorLogger import *
 
 
 class AnnotationListView(APIView):
@@ -25,6 +26,7 @@ class AnnotationListView(APIView):
     def get(self, request, group_pk, document_pk, format=None):
         # return empty list on get
         # retrieve of annotations using search
+	# do logging
         return JsonResponse([], safe=False)
 
     @require_group_permission
@@ -64,6 +66,7 @@ class AnnotationListView(APIView):
                     if 'hasSource' in annotation['oa']['hasTarget']:
                         document = Document.objects.get(pk=document_pk)
                         annotation['oa']['hasTarget']['hasSource']['@id'] = document.uri()
+			
 
                     if 'hasSelector' in annotation['oa']['hasTarget']:
                         # generate URN for selector
@@ -91,6 +94,7 @@ class AnnotationListView(APIView):
                 except Exception:
                     pass
 
+	    log_annotation_created(request)
         except InvalidAnnotationError:
             pass
         except InvalidResourceTypeError:
@@ -108,11 +112,13 @@ class AnnotationDetailView(APIView):
     def get(self, request, group_pk, document_pk, annotation_pk, format=None):
         """Returns the specified annotation object"""
         response = requests.get(settings.ANNOTATION_STORE_URL + '/annotations/' + annotation_pk)
+	#log_annotation_created(annotation)
         return JsonResponse(response.json(), safe=False)
 
     @require_group_permission
     def put(self, request, group_pk, document_pk, annotation_pk, format=None):
         """Updates the specified annotation object"""
+
         annotation = json.loads(request.body)
 
         try:
@@ -127,6 +133,7 @@ class AnnotationDetailView(APIView):
                                     data=request.body, headers=headers)
             annotation = response.json()
         
+	    log_annotation_edited(request)        
         except InvalidAnnotationError:
             pass
         except InvalidResourceTypeError:
@@ -138,6 +145,7 @@ class AnnotationDetailView(APIView):
     def delete(self, request, group_pk, document_pk, annotation_pk, format=None):
         """Deletes the specified annotation object"""
         requests.delete(settings.ANNOTATION_STORE_URL + '/annotations/' + annotation_pk)
+	log_annotation_deleted(request)
         return Response('', status=204)
 
 

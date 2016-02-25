@@ -18,6 +18,6 @@ def document_created(sender, instance, created, **kwargs):
         try:       
             title = instance.title
             creator = instance.description
-            log.info('document_created=%s'%(title))
+            log.info('document_created=_%s'%(title))
         except Exception as e:
             print(e.message)

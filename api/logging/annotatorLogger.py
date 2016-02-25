@@ -46,14 +46,14 @@ def log_annotation_created(request):
     elif annotation['oa']['motivatedBy'] == 'oa:highlighting':
         documentID = annotation['uri']
         highlight_content = annotation['quote']
-        logger.info('highlight_created=__, user=%s, text=%s, documentID=%s'%(user, highlight_content, documentID))
+        logger.info('highlight_created=_%s, user=%s, text=%s, documentID=%s'%(highlight_content, user, highlight_content, documentID))
         pass
         # TODO 
     elif annotation['oa']['motivatedBy'] == 'oa:classifying':
         documentID = annotation['uri']
         tag_label = annotation['neonion']['viewer']['conceptLabel']
         tag_content = annotation['oa']['hasBody']['label']        
-        logger.info('tag_concept_created=%s, user=%s, Concept_label=%s_, motivation=oa:classifying_, documentID=%s'%(tag_content, user, tag_label, documentID))
+        logger.info('tag_concept_created=%s, user=%s, Concept_label=%s_, motivation=classifying_, documentID=%s'%(tag_content, user, tag_label, documentID))
         pass
         # TODO
     elif annotation['oa']['motivatedBy'] == 'oa:identifying':
@@ -61,7 +61,7 @@ def log_annotation_created(request):
         tag_label = annotation['neonion']['viewer']['conceptLabel']
         tag_content = annotation['oa']['hasBody']['label'] 
         identificated_as = annotation['oa']['hasBody']['identifiedAs'] 
-        logger.info('tag_concept_created=%s, user=%s, Concept_label=%s_, motivation=oa:identifying_, documentID=%s'%(tag_content, user, tag_label, documentID))
+        logger.info('tag_concept_created=%s, user=%s, Concept_label=%s_, motivation=identifying_, documentID=%s'%(tag_content, user, tag_label, documentID))
         pass
         # TODO 
     elif annotation['oa']['motivatedBy'] == 'oa:linking':
@@ -117,14 +117,14 @@ def log_annotation_deleted(request):
     elif annotation['oa']['motivatedBy'] == 'oa:highlighting':
         documentID = annotation['uri']
         highlight_content = annotation['quote']
-        logger.info('highlight_deleted=__, user=%s, text=%s, documentID=%s'%(user, highlight_content, documentID))
+        logger.info('highlight_deleted=_%s, user=%s, text=%s, documentID=%s'%(highlight_content, user, highlight_content, documentID))
         pass
         # TODO 
     elif annotation['oa']['motivatedBy'] == 'oa:classifying':
         documentID = annotation['uri']
         tag_label = annotation['neonion']['viewer']['conceptLabel']
         tag_content = annotation['oa']['hasBody']['label']       
-        logger.info('tag_concept_deleted=%s, user=%s, Concept_label=%s_, motivation=oa:classifying_, documentID=%s'%(tag_content, user, tag_label, documentID))
+        logger.info('tag_concept_deleted=%s, user=%s, Concept_label=%s_, motivation=classifying_, documentID=%s'%(tag_content, user, tag_label, documentID))
         pass
         # TODO
     elif annotation['oa']['motivatedBy'] == 'oa:identifying':
@@ -132,7 +132,7 @@ def log_annotation_deleted(request):
         tag_label = annotation['neonion']['viewer']['conceptLabel']
         tag_content = annotation['oa']['hasBody']['label'] 
         identificated_as = annotation['oa']['hasBody']['identifiedAs']       
-        logger.info('tag_concept_deleted=%s, user=%s, Concept_label=%s_, motivation=oa:identifying_, documentID=%s'%(tag_content, user, tag_label, documentID))
+        logger.info('tag_concept_deleted=%s, user=%s, Concept_label=%s_, motivation=identifying_, documentID=%s'%(tag_content, user, tag_label, documentID))
         pass
         # TODO   
     elif annotation['oa']['motivatedBy'] == 'oa:linking':
@@ -143,11 +143,12 @@ def log_annotation_deleted(request):
         logger.info('link_deleted, predicateLabel=%s_, source=%s, target=%s, motivation=linking_, documentID=%s'%(predicateLabel, source, target, documentID))
         pass
     
-        
+'''        
 def info(request):
     body = request.body
     logger.info(body) 
     
 
 
-#documentID = annotation['oa']['hasTarget']['hasSource']['@id']
+documentID = annotation['oa']['hasTarget']['hasSource']['@id']
+'''

@@ -69,7 +69,7 @@ def log_annotation_created(request):
         source = annotation['neonion']['viewer']['source']
         target = annotation['neonion']['viewer']['target']
         predicateLabel = annotation['neonion']['viewer']['predicateLabel']
-        logger.info('link_created, predicateLabel=%s_, source=%s, target=%s, motivation=linking_, documentID=%s'%(predicateLabel, source, target, documentID))
+        logger.info('link_created, user=%s, predicateLabel=%s_, source=%s, target=%s, motivation=linking_, documentID=%s'%(user, predicateLabel, source, target, documentID))
         pass
 
         
@@ -140,7 +140,7 @@ def log_annotation_deleted(request):
         source = annotation['neonion']['viewer']['source']
         target = annotation['neonion']['viewer']['target']
         predicateLabel = annotation['neonion']['viewer']['predicateLabel']
-        logger.info('link_deleted, predicateLabel=%s_, source=%s, target=%s, motivation=linking_, documentID=%s'%(predicateLabel, source, target, documentID))
+        logger.info('link_deleted, user=%s, predicateLabel=%s_, source=%s, target=%s, motivation=linking_, documentID=%s'%(user, predicateLabel, source, target, documentID))
         pass
     
 '''        

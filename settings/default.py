@@ -196,5 +196,54 @@ ENDPOINT_UPDATE = 'http://localhost:8080/openrdf-sesame/repositories/neonion/sta
 NER_SERVICE_ENABLED = False
 NER_SERVICE_URL = 'http://localhost:6000'
 
-#LOGGING_CONFIG = None
+#LOGGING_CONFIG 
+KIBANA_URL = 'http://127.0.0.1:5601'
+USER_LOGGING_ENABLED = True
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '%(asctime)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/log.log',
+	    'formatter': 'simple'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'propagate': True,
+	    'level':'INFO',
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'documents': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
+        'accounts': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
+        'api': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        }
+    }
+}
+
 

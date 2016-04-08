@@ -63,10 +63,11 @@
             </li>
 	    
 	    {# Kibana #}
-
-            <li><a href="http://127.0.0.1:5601/" target="_blank"><i class="fa fa-bar-chart"></i>kibana </a>	
+	    
+	    {% if system.services.user_logging.enabled %}
+            <li><a href="{{ system.services.user_logging.kibana_url }}" target="_blank"><i class="fa fa-bar-chart"></i>Kibana </a>	
 	    </li>
-
+ 	    {% endif %}
         {% endif %}
         {# Logout #}
         <li {% if request.path == url_logout %}class="active"{% endif %}>

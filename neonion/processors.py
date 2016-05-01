@@ -4,6 +4,10 @@ def system_settings(request):
     return {
         'system': {
             'services': {
+		'user_logging': {
+		    'kibana_url': settings.KIBANA_URL,
+		    'enabled': settings.USER_LOGGING_ENABLED,
+		},
                 'endpoint': {
                     'enabled': settings.ENDPOINT_ENABLED,
                 }

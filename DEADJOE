@@ -1,0 +1,17 @@
+
+*** These modified files were found in JOE when it aborted on Thu Feb 25 17:43:54 2016
+*** JOE was aborted by UNIX signal 15
+
+*** File '(Unnamed)'
+/home/taraka/Projects/neonion/.git/COMMIT_EDITMSG
+
+*** File '/home/taraka/Projects/neonion/.git/COMMIT_EDITMSG'
+
+# PleaseqqqCC enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch logging
+# Changes to be committed:
+#	modified:   api/annotationstore.py
+#	modified:   api/logging/annotatorLogger.py
+#	modified:   neonion/templates/navigation.html
+#

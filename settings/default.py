@@ -46,7 +46,6 @@ INSTALLED_APPS = (
     'pipeline',
     'neonion',
     'api',
-    'plugins',
     'documents',
     'accounts',
     'endpoint',
@@ -122,6 +121,7 @@ STATICFILES_FINDERS = (
 #     'pipeline.compilers.sass.SASSCompiler',
 # )
 
+
 PIPELINE_JS = {
     'stats': {
         'source_filenames': (
@@ -139,11 +139,11 @@ PIPELINE_JS = {
     },
     'annotator': {
         'source_filenames': (
-            'js/annotator.min.js',
-            'js/annotator.neonion.js',
-            'js/annotator.neonion.extensions.js',
-            'js/annotator.ner.js',
+            'js/annotator/annotator.min.js',
             'js/annotator.store.min.js',
+            'js/annotator/annotator.neonion.js',
+            'js/annotator/annotator.neonion.*.js',
+            'js/annotator/annotator.ner.js',
             'js/pdf/pdf.js',
             'js/pdf/text_layer_builder.js',
             'js/pdf/ui_utils.js'
@@ -162,7 +162,6 @@ PIPELINE_JS = {
         'output_filename': 'js/angular_app.js',
     }
 }
-
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
@@ -196,3 +195,55 @@ ENDPOINT_UPDATE = 'http://localhost:8080/openrdf-sesame/repositories/neonion/sta
 # settings for NER service
 NER_SERVICE_ENABLED = False
 NER_SERVICE_URL = 'http://localhost:6000'
+
+#LOGGING_CONFIG 
+KIBANA_URL = 'http://127.0.0.1:5601'
+USER_LOGGING_ENABLED = True
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '%(asctime)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/log.log',
+	    'formatter': 'simple'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'propagate': True,
+	    'level':'INFO',
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'documents': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
+        'accounts': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
+        'api': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        }
+    }
+}
+
+

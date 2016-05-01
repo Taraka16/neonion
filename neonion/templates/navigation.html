@@ -61,6 +61,13 @@
                     <i class="fa fa-users fa-fw"></i>Users
                 </a>
             </li>
+	    
+	    {# Kibana #}
+	    
+	    {% if system.services.user_logging.enabled %}
+            <li><a href="{{ system.services.user_logging.kibana_url }}" target="_blank"><i class="fa fa-bar-chart"></i>Kibana </a>	
+	    </li>
+ 	    {% endif %}
         {% endif %}
         {# Logout #}
         <li {% if request.path == url_logout %}class="active"{% endif %}>

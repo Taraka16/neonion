@@ -8,12 +8,16 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db import transaction
 
+#import sys
+#sys.path.append(r'/Projects/neonion/common/logging/account')
+#from accounts import *
+
 
 class NeonionUserManager(BaseUserManager):
     def create_user(self, email, password=None, **kwargs):
         user = self.model(email=email, **kwargs)
         user.set_password(password)
-        user.save()
+        user.save()        
         return user
 
     def create_superuser(self, email, password, **kwargs):
@@ -35,11 +39,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     hidden_documents = models.ManyToManyField(Document, related_name='hidden_documents', blank=True, null=True)
 
     USERNAME_FIELD = 'email'
+   
 
     def join_group(self, group):
         if not Membership.objects.filter(user=self, group=group).exists():
             membership = Membership.objects.create(user=self, group=group)
             membership.save()
+             
 
     def unjoin_group(self, group):
         if Membership.objects.filter(user=self, group=group).exists():
@@ -55,6 +61,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         # get public group
         public_group = WorkingGroup.objects.get(pk=1)
         self.join_group(public_group)
+        
 
     def hide_document(self, document):
         with transaction.atomic():
@@ -82,7 +89,7 @@ class WorkingGroup(models.Model):
     documents = models.ManyToManyField(Document)
     concept_set = models.ForeignKey(ConceptSet, blank=True, null=True, on_delete=models.SET_NULL)
 
-    def __str__(self):
+    def __str__(self):        
         return self.name
 
 
@@ -91,7 +98,7 @@ class Membership(models.Model):
     group = models.ForeignKey(WorkingGroup)
     date_joined = models.DateField(auto_now_add=True)
     invite_reason = models.CharField(max_length=64, blank=True)
-    permissions = models.ManyToManyField(Permission, blank=True)
+    permissions = models.ManyToManyField(Permission, blank=True)    
 
 
 # Signal which ensures that newly created users joins the public group automatically
@@ -99,3 +106,12 @@ class Membership(models.Model):
 def user_joins_public_group(sender, instance, created, **kwargs):
     if created:
         instance.join_public_group()
+       
+        
+'''
+def extrafunc():
+    from common.logging.account.accounts import funk
+    funk() 
+    from common.logging.account.accounts import user_joins_public_group
+    user_joins_public_group() 
+'''

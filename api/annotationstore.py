@@ -1,6 +1,9 @@
 import requests
 import json
+import common.annotation as ann
 
+from common.uri import generate_uri, generate_urn
+from common.vocab import neonion, OpenAnnotation
 from django.conf import settings
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -8,9 +11,10 @@ from rest_framework.views import APIView
 from rest_framework import permissions, generics
 from authentication import UnsafeSessionAuthentication
 from common.exceptions import InvalidResourceTypeError, InvalidAnnotationError
-from common.annotation import SemanticAnnotationValidator, pre_process_annotation, post_process_annotation
 from django.http import JsonResponse
-from decorators import require_group_permission
+from api.decorators import require_group_permission
+from documents.models import Document
+from logging.annotatorLogger import *
 
 
 class AnnotationListView(APIView):
@@ -22,6 +26,7 @@ class AnnotationListView(APIView):
     def get(self, request, group_pk, document_pk, format=None):
         # return empty list on get
         # retrieve of annotations using search
+	# do logging
         return JsonResponse([], safe=False)
 
     @require_group_permission
@@ -31,17 +36,44 @@ class AnnotationListView(APIView):
 
         try:
             # validate annotation first
-            validate = SemanticAnnotationValidator()
+            validate = ann.SemanticAnnotationValidator()
             validate(annotation)
 
-            # add user to annotation
-            if 'annotatedBy' not in annotation['oa']:
-                annotation['oa']['annotatedBy'] = {
-                    'email': request.user.email,
-                    'type': "foaf:person"
-                }
+            ann.add_creator(annotation, request.user.email)
 
-            # add permissions to annotation
+            # OA specific enrichment
+            if 'oa' in annotation:
+                # add context JSON-LD embedding
+                annotation['oa']['@context'] = settings.NEONION_BASE_NAMESPACE.rstrip('/') + "/ns/neonion-context.jsonld",
+                # generate URI for annotation
+                annotation['oa']['@id'] = generate_uri(neonion.ANNOTATION)
+
+                # enricht body
+                if 'hasBody' in annotation['oa']:
+                    # generate URN for body
+                    annotation['oa']['hasBody']['@id'] = generate_urn()
+
+                    # generate URI for classifyied or identified instance
+                    if (ann.motivation_equals(annotation, OpenAnnotation.Motivations.identifying) or
+                        ann.motivation_equals(annotation, OpenAnnotation.Motivations.classifying)):
+                        ann.add_resource_uri(annotation)
+
+                # enrich target
+                if 'hasTarget' in annotation['oa']:
+                    # generate URN for target
+                    annotation['oa']['hasTarget']['@id'] = generate_urn()
+
+                    if 'hasSource' in annotation['oa']['hasTarget']:
+                        document = Document.objects.get(pk=document_pk)
+                        annotation['oa']['hasTarget']['hasSource']['@id'] = document.uri()
+			
+
+                    if 'hasSelector' in annotation['oa']['hasTarget']:
+                        # generate URN for selector
+                        annotation['oa']['hasTarget']['hasSelector']['@id'] = generate_urn()
+
+            # Annotator specific enrichment
+            # add permissions
             annotation['permissions'] = {
                 'read': [group_pk],
                 'update': [group_pk],
@@ -49,22 +81,26 @@ class AnnotationListView(APIView):
                 'admin': [request.user.email]
             }
 
-            pre_process_annotation(annotation)
-
             # forward request to annotation store
             headers = {'content-type': 'application/json'}
             response = requests.post(settings.ANNOTATION_STORE_URL + '/annotations',
                                      data=json.dumps(annotation), headers=headers)
+            annotation = response.json()
+            
+            # serialize annotation to triple store
+            if hasattr(settings, 'ENDPOINT_ENABLED') and settings.ENDPOINT_ENABLED:
+                try:
+                    ann.endpoint_create_annotation(annotation)
+                except Exception:
+                    pass
 
-            post_process_annotation(annotation)
+	    log_annotation_created(request)
         except InvalidAnnotationError:
             pass
         except InvalidResourceTypeError:
             pass
-        except Exception:
-            pass
 
-        return JsonResponse(response.json(), status=201, safe=False)
+        return JsonResponse(annotation, status=201, safe=False)
 
 
 class AnnotationDetailView(APIView):
@@ -76,20 +112,40 @@ class AnnotationDetailView(APIView):
     def get(self, request, group_pk, document_pk, annotation_pk, format=None):
         """Returns the specified annotation object"""
         response = requests.get(settings.ANNOTATION_STORE_URL + '/annotations/' + annotation_pk)
+	#log_annotation_created(annotation)
         return JsonResponse(response.json(), safe=False)
 
     @require_group_permission
     def put(self, request, group_pk, document_pk, annotation_pk, format=None):
         """Updates the specified annotation object"""
-        headers = {'content-type': 'application/json'}
-        response = requests.put(settings.ANNOTATION_STORE_URL + '/annotations/' + annotation_pk,
-                                data=request.body, headers=headers)
-        return JsonResponse(response.json(), safe=False)
+
+        annotation = json.loads(request.body)
+
+        try:
+            # validate annotation first
+            validate = ann.SemanticAnnotationValidator()
+            validate(annotation)
+
+            ann.add_creator(annotation, request.user.email)
+
+            headers = {'content-type': 'application/json'}
+            response = requests.put(settings.ANNOTATION_STORE_URL + '/annotations/' + annotation_pk,
+                                    data=request.body, headers=headers)
+            annotation = response.json()
+        
+	    log_annotation_edited(request)        
+        except InvalidAnnotationError:
+            pass
+        except InvalidResourceTypeError:
+            pass
+
+        return JsonResponse(annotation, safe=False)
 
     @require_group_permission
     def delete(self, request, group_pk, document_pk, annotation_pk, format=None):
         """Deletes the specified annotation object"""
         requests.delete(settings.ANNOTATION_STORE_URL + '/annotations/' + annotation_pk)
+	log_annotation_deleted(request)
         return Response('', status=204)
 
 
